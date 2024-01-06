@@ -35,9 +35,6 @@ import { createNamespacedHelpers } from 'vuex';
 const ingredientHelper = createNamespacedHelpers("ingredient");
     export default {
         created() {
-            this.ingredientList.forEach(item => {
-                this.calculateIngredientNutritions(item);
-            });
         },
 
         data() {
@@ -53,14 +50,22 @@ const ingredientHelper = createNamespacedHelpers("ingredient");
             }
         },
 
+        mounted() {
+            if (this.ingredients.length == 0) {
+                this.fetchIngredients();
+            }
+            this.ingredientList.forEach(item => {
+                this.calculateIngredientNutritions(item);
+            });
+        },
+
         computed: {
             ...ingredientHelper.mapGetters(["ingredients"]),  
         },
 
         methods: {
+            ...ingredientHelper.mapActions(["fetchIngredients"]),
             calculateIngredientNutritions(item) {
-                const src = this.ingredients.find(x => x.id == item.id);
-                const q = item.quantity;
                 let calory = 0,
                     carb = 0,
                     sugar = 0,
@@ -68,7 +73,12 @@ const ingredientHelper = createNamespacedHelpers("ingredient");
                     satFat = 0,
                     fiber = 0,
                     protein = 0;
-                switch (src.unitType) {
+                const q = item.quantity;
+                
+                const src = this.ingredients.find(x => x.id == item.id);
+                if (src == null) return;
+
+                switch (src?.unitType) {
                     case "stk./pc.":
                         calory = parseFloat(src.calories) > 0 ? (src.calories*q).toFixed(2) : 0;
                         carb = parseFloat(src.carbohydrates) > 0 ? (src.carbohydrates*q).toFixed(2) : 0;

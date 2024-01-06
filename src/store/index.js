@@ -2,6 +2,7 @@ import { createStore } from 'vuex';
 import ingredient from './ingredient';
 import recipe from './recipe';
 import auth from './auth';
+import profile from './profile';
 
 export default createStore({
     state: {},
@@ -11,6 +12,7 @@ export default createStore({
     modules: {
         ingredient,
         recipe,
-        auth
+        auth,
+        profile
     },
 });

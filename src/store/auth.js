@@ -1,4 +1,4 @@
-import { signIn, createMember, memberRef, getCurrentMember, logout } from "../services/firebase";
+import { signIn, createMember, memberRef, sendResetPasswordRequest, getCurrentMember, logout } from "../services/firebase";
 
 const state = {
     currentMember: null,
@@ -19,6 +19,19 @@ const mutations = {
 };
 
 const actions = {
+    async create({ commit }, data) {
+        console.log('store.create', data);
+        if (data.email == null || data.password == null || data.name == null) return;
+        commit("SET_LOADING", true);
+        var memberCreated = await createMember(data.email, data.password, data.name);
+        console.log('store.create result', memberCreated);
+        commit("SET_LOADING", false);
+    },
+
+    setMember({commit}, data) {
+        commit('SET_CURRENT_MEMBER', data);
+    },
+
     async signIn({ commit }, data) {
         if (data.email == null || data.password == null) return;
         commit("SET_LOADING", true);
@@ -45,6 +58,23 @@ const actions = {
             }
         }
         return false;
+    },
+
+    async requestPasswordReset({commit}, data) {
+        console.log('store', data);
+        commit("SET_LOADING", true);
+        await sendResetPasswordRequest(data.email)
+            .then(result => {
+                console.log(result);
+                return result;
+            })
+            .catch(error => {
+                console.log(error);
+                throw error;
+            })
+            .finally(() => {
+                commit("SET_LOADING", false);
+            })
     },
 
     async signOut(store) {

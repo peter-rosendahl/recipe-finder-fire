@@ -1,5 +1,6 @@
 import { recipeRef, setRef } from "../services/firebase";
 import { get, set } from 'firebase/database';
+import store from './index';
 
 const state = {
     recipeList: [],

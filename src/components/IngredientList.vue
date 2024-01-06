@@ -2,11 +2,11 @@
     <v-container color="primary darken-4">
         <v-row v-if="this.currentMember != null">
             <v-col cols="12" sm="6">
-                <h1 class="text-driftwood">Ingredients</h1>
+                <h1 class="text-babyblue">Ingredients</h1>
             </v-col>
             <v-spacer></v-spacer>
             <v-col cols="12" sm="4" style="text-align: end">
-                <v-btn fab icon color="driftwood" @click="edit(null)">
+                <v-btn fab icon color="babyblue" @click="edit(null)">
                     <v-icon icon="mdi-plus"></v-icon>
                 </v-btn>
             </v-col>
@@ -21,6 +21,9 @@
                 >
                 <template v-slot:item.customName="{item}">
                     <p class="clickable" @click="edit(item)">{{ item.raw.name.en }}</p>
+                </template>
+                <template v-slot:item.unitType="{item}">
+                    <p>{{ typeof(item.raw.unitType) == 'string' ? item.raw.unitType : item.raw.unitType?.join("/") }}</p>
                 </template>
                 <template v-slot:item.sugarIndex="{item}">
                     <p>{{ renderSugarIndex(item) }}</p>
