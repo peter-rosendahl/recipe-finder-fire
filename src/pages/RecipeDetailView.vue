@@ -5,7 +5,7 @@
                 <img class="title-icon" :src="renderFlag(recipe.language)" alt="">
                 {{ recipe != null ? `${recipe.recipeName}` : '' }}
                 <v-spacer></v-spacer>
-                <v-btn fab icon color="babyblue" @click="isEditRecipeVisible = true">
+                <v-btn v-if="this.currentMember != null" fab icon color="babyblue" @click="isEditRecipeVisible = true">
                     <v-icon>mdi-pencil</v-icon>
                 </v-btn>
             </h1>
@@ -90,6 +90,7 @@ import RecipeForm from '../components/RecipeForm.vue';
 import { createNamespacedHelpers } from 'vuex';
 const ingredientHelper = createNamespacedHelpers("ingredient");
 const recipeHelper = createNamespacedHelpers("recipe");
+const authHelper = createNamespacedHelpers("auth");
 
     export default {
         name: "Recipe",
@@ -127,6 +128,7 @@ const recipeHelper = createNamespacedHelpers("recipe");
         },
 
         computed: {
+            ...authHelper.mapGetters(["currentMember"]),
             ...recipeHelper.mapGetters(["recipes"]),
             ...ingredientHelper.mapGetters([
                 "ingredients",
@@ -139,7 +141,9 @@ const recipeHelper = createNamespacedHelpers("recipe");
             ...ingredientHelper.mapActions(["fetchIngredients"]),
 
             renderFlag(language) {
-                return `../src/assets/${language}.png`;
+                if(language == undefined) return;
+                const prefix = process.env.NODE_ENV === 'development' ? '/src' : '';
+                return `${prefix}/assets/${language}.png`;
             },
 
             renderIngredientName(id, language) {
@@ -183,7 +187,7 @@ const recipeHelper = createNamespacedHelpers("recipe");
     }
     .ingredient-item {
         display: flex;
-        max-width: 500px;
+        // max-width: 500px;
         width: 100%;
         justify-content: flex-start;
         flex-flow: row nowrap;

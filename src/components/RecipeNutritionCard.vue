@@ -39,7 +39,8 @@ const ingredientHelper = createNamespacedHelpers("ingredient");
 
         data() {
             return {
-                nutritions: []
+                nutritions: [],
+                isLoaded: false
             };
         },
 
@@ -50,13 +51,23 @@ const ingredientHelper = createNamespacedHelpers("ingredient");
             }
         },
 
+        watch: {
+            ingredients: {
+                handler(changes) {
+                    if (!this.isLoaded) {
+                        this.initiateCalculations(this.ingredientList);
+                    }
+                },
+            },
+        },
+
         mounted() {
             if (this.ingredients.length == 0) {
                 this.fetchIngredients();
             }
-            this.ingredientList.forEach(item => {
-                this.calculateIngredientNutritions(item);
-            });
+            if (!this.isLoaded) {
+                this.initiateCalculations(this.ingredientList);
+            }
         },
 
         computed: {
@@ -65,6 +76,13 @@ const ingredientHelper = createNamespacedHelpers("ingredient");
 
         methods: {
             ...ingredientHelper.mapActions(["fetchIngredients"]),
+
+            initiateCalculations(list) {
+                list.forEach(item => {
+                    this.calculateIngredientNutritions(item);
+                });
+            },
+
             calculateIngredientNutritions(item) {
                 let calory = 0,
                     carb = 0,
@@ -76,20 +94,25 @@ const ingredientHelper = createNamespacedHelpers("ingredient");
                 const q = item.quantity;
                 
                 const src = this.ingredients.find(x => x.id == item.id);
+                console.log('calculateIngredientNutritions src', src);
                 if (src == null) return;
 
-                switch (src?.unitType) {
-                    case "stk./pc.":
-                        calory = parseFloat(src.calories) > 0 ? (src.calories*q).toFixed(2) : 0;
-                        carb = parseFloat(src.carbohydrates) > 0 ? (src.carbohydrates*q).toFixed(2) : 0;
-                        sugar = parseFloat(src.sugars) > 0 ? (src.sugars*q).toFixed(2) : 0;
-                        fat = parseFloat(src.fat) > 0 ? (src.fat*q).toFixed(2) : 0;
-                        satFat = parseFloat(src.saturatedFat) > 0 ? (src.saturatedFat*q).toFixed(2) : 0;
-                        fiber = parseFloat(src.fiber) > 0 ? (src.fiber*q).toFixed(2) : 0;
-                        protein = parseFloat(src.protein) > 0 ? (src.protein*q).toFixed(2) : 0;
+                switch (item?.unitType) {
+                    case "pcs.": {
+                        const multiplier = src.gramsPerPiece != null 
+                            ? src.gramsPerPiece / 100
+                            : 1;
+                        calory = parseFloat(src.calories) > 0 ? (src.calories*q*multiplier).toFixed(2) : 0;
+                        carb = parseFloat(src.carbohydrates) > 0 ? (src.carbohydrates*q*multiplier).toFixed(2) : 0;
+                        sugar = parseFloat(src.sugars) > 0 ? (src.sugars*q*multiplier).toFixed(2) : 0;
+                        fat = parseFloat(src.fat) > 0 ? (src.fat*q*multiplier).toFixed(2) : 0;
+                        satFat = parseFloat(src.saturatedFat) > 0 ? (src.saturatedFat*q*multiplier).toFixed(2) : 0;
+                        fiber = parseFloat(src.fiber) > 0 ? (src.fiber*q*multiplier).toFixed(2) : 0;
+                        protein = parseFloat(src.protein) > 0 ? (src.protein*q*multiplier).toFixed(2) : 0;
                         break;
+                    }
                         
-                    case "teaspoon":
+                    case "tsp.":
                         calory = parseFloat(src.calories) > 0 ? ((q*5.69)/src.calories).toFixed(2) : 0;
                         carb = parseFloat(src.carbohydrates) > 0 ? ((q*5.69)/src.carbohydrates).toFixed(2) : 0;
                         sugar = parseFloat(src.sugars) > 0 ? ((q*5.69)/src.sugars).toFixed(2) : 0;
@@ -109,7 +132,7 @@ const ingredientHelper = createNamespacedHelpers("ingredient");
                         protein = parseFloat(src.protein) > 0 ? ((src.protein/100)*q).toFixed(2) : 0;
                         break;
                     
-                    case "ml":
+                    case "ml.":
                         calory = parseFloat(src.calories) > 0 ? ((src.calories/100)*q).toFixed(2) : 0;
                         carb = parseFloat(src.carbohydrates) > 0 ? ((src.carbohydrates/100)*q).toFixed(2) : 0;
                         sugar = parseFloat(src.sugars) > 0 ? ((src.sugars/100)*q).toFixed(2) : 0;
@@ -129,7 +152,11 @@ const ingredientHelper = createNamespacedHelpers("ingredient");
                         protein = parseFloat(src.protein) > 0 ? ((q)/src.protein).toFixed(2) : 0;
                         break;
                 }
+                console.log('nutritionsList', this.nutritions);
+
                 if (this.nutritions.find(x => x.id == src.id) == null) {
+
+                    console.log('nutrition', src.name.en, calory, carb, sugar, fat, satFat, fiber, protein);
                     this.nutritions.push({
                         id: src.id, 
                         cal: calory,
@@ -141,6 +168,8 @@ const ingredientHelper = createNamespacedHelpers("ingredient");
                         protein: protein
                     });
                 }
+
+                this.isLoaded = true;
             },
 
             calculateRecipeNutritions(type) {
@@ -182,8 +211,9 @@ const ingredientHelper = createNamespacedHelpers("ingredient");
 
                 if (array.length > 0) {
                     for (let i = 0; i < array.length; i++) {
-                        const el = array[i];
-                        sum += parseFloat(el);
+                        const el = array[i],
+                            val = parseFloat(el);
+                        sum += val;
                     }
                 }
 

@@ -12,16 +12,6 @@
             <recipe-filter :on-changed="filterChanged"></recipe-filter>
         </template>
     </page-sidebar>
-    
-    
-    <!-- <v-row>
-        <v-col>
-            <div class="main-header">
-                <h1 class="title text-driftwood">Recipes</h1>
-                <v-btn v-if="this.currentMember != null" color="driftwood" @click="openNewRecipeForm()" icon="mdi-plus"></v-btn>
-            </div>
-        </v-col>
-    </v-row> -->
 
     <v-row>
         <template v-if="displayedRecipes.length > 0">
@@ -51,7 +41,7 @@
                 </v-col>
             </template>
             <v-col cols="12" sm="12">
-                <v-card class="clickable" @click="openNewRecipeForm()">
+                <v-card v-if="this.currentMember != null" class="clickable" @click="openNewRecipeForm()">
                     <v-card-title class="create-card-title">
                         Create new recipe
                         <v-icon>mdi-plus</v-icon>
@@ -234,7 +224,8 @@ const profileHelper = createNamespacedHelpers("profile");
 
             setDisplayedRecipes(uid, orderBy, list) {
                 console.log('setDisplayedRecipes triggered', uid, orderBy);
-                var userRecipes = this.recipes.filter(x => x.authorId == uid);
+                // var userRecipes = this.recipes.filter(x => x.authorId == uid);
+                var userRecipes = [...this.recipes];
                 this.setRecipeCount(userRecipes.length);
                 console.log('userRecipes', userRecipes);
                 switch (orderBy) {
