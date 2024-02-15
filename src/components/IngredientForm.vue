@@ -7,39 +7,50 @@
                         <v-col cols="12" sm="12">
                             <h3>Basic info</h3>
                         </v-col>
-                        <v-col cols="12" md="4">
+                        <v-col cols="12" sm="4">
                             <v-text-field
                                 v-model="ingredient.name.da"
                                 label="Danish name"
+                                autofocus
+                                variant="solo"
+                                density="compact"
                                 required
                             ></v-text-field>
                         </v-col>
-                        <v-col cols="12" md="4">
+                        <v-col cols="12" sm="4">
                             <v-text-field
                                 v-model="ingredient.name.en"
                                 label="English name"
                                 required
+                                variant="solo"
+                                density="compact"
                             ></v-text-field>
                         </v-col>
-                        <v-col cols="12" md="4">
+                        <v-col cols="12" sm="4">
                             <v-text-field
                                 v-model="ingredient.name.is"
                                 label="Icelandic name"
                                 required
+                                variant="solo"
+                                density="compact"
                             ></v-text-field>
                         </v-col>
-                        <v-col cols="12" md="4">
+                        <v-col cols="12" sm="4">
                             <v-select 
                                 :items="unitTypeList" 
                                 v-model="ingredient.unitType"
+                                variant="solo"
+                                multiple
                                 density="compact"
                                 label="Unit Type"
+                                @update:modelValue="onUnitTypeChange"
                             ></v-select>
                         </v-col>
-                        <v-col cols="12" md="4">
+                        <v-col cols="12" sm="4">
                             <v-select 
                                 :items="ingredientCategoryList" 
                                 v-model="ingredient.category"
+                                variant="solo"
                                 density="compact"
                                 label="Category"
                             ></v-select>
@@ -51,77 +62,95 @@
                         <v-col cols="12" sm="12">
                             <h3>Nutritional facts:</h3>
                         </v-col>
-                        <v-col cols="12" md="4">
+                        <v-col cols="12" sm="4">
                             <v-text-field
                                 v-model="ingredient.energy"
                                 label="Energy"
                                 type="number"
+                                variant="solo"
+                                density="compact"
                                 required
                             ></v-text-field>
                         </v-col>
-                        <v-col cols="12" md="4">
+                        <v-col cols="12" sm="4">
                             <v-text-field
                                 v-model="ingredient.calories"
                                 label="Calories"
                                 type="number"
+                                variant="solo"
+                                density="compact"
                                 required
                                 @input="onCaloriesChange"
                                 :onchange="onCaloriesChange"
                             ></v-text-field>
                         </v-col>
-                        <v-col cols="12" md="4">
+                        <v-col cols="12" sm="4">
                             <v-text-field
                                 v-model="ingredient.fat"
                                 label="Fat"
                                 type="number"
+                                variant="solo"
+                                density="compact"
                                 required
                             ></v-text-field>
                         </v-col>
-                        <v-col cols="12" md="4">
+                        <v-col cols="12" sm="4">
                             <v-text-field
                                 v-model="ingredient.saturatedFat"
                                 label="Saturated fat"
                                 type="number"
+                                variant="solo"
+                                density="compact"
                                 required
                             ></v-text-field>
                         </v-col>
-                        <v-col cols="12" md="4">
+                        <v-col cols="12" sm="4">
                             <v-text-field
                                 v-model="ingredient.carbohydrates"
                                 label="Carbohydrates"
                                 type="number"
+                                variant="solo"
+                                density="compact"
                                 required
                             ></v-text-field>
                         </v-col>
-                        <v-col cols="12" md="4">
+                        <v-col cols="12" sm="4">
                             <v-text-field
                                 v-model="ingredient.sugars"
                                 label="Sugars"
                                 type="number"
+                                variant="solo"
+                                density="compact"
                                 required
                             ></v-text-field>
                         </v-col>
-                        <v-col cols="12" md="4">
+                        <v-col cols="12" sm="4">
                             <v-text-field
                                 v-model="ingredient.fiber"
                                 label="Fiber"
                                 type="number"
+                                variant="solo"
+                                density="compact"
                                 required
                             ></v-text-field>
                         </v-col>
-                        <v-col cols="12" md="4">
+                        <v-col cols="12" sm="4">
                             <v-text-field
                                 v-model="ingredient.protein"
                                 label="Protein"
                                 type="number"
+                                variant="solo"
+                                density="compact"
                                 required
                             ></v-text-field>
                         </v-col>
-                        <v-col cols="12" md="4">
+                        <v-col cols="12" sm="4">
                             <v-text-field
                                 v-model="ingredient.salt"
                                 label="Salt"
                                 type="number"
+                                variant="solo"
+                                density="compact"
                                 required
                             ></v-text-field>
                         </v-col>
@@ -160,7 +189,7 @@
                         en: "",
                         is: ""
                     },
-                    unitType: "",
+                    unitType: [],
                     category: "",
                     energy: 0,
                     calories: 0,
@@ -222,6 +251,10 @@
             onCaloriesChange(e) {
                 const value = e.target.value;
                 this.ingredient.energy = Math.round(parseInt(value) * 4.184);
+            },
+
+            onUnitTypeChange(list) {
+                this.ingredient.unitType = list.filter(item => item.length > 0);
             },
 
             /** (public) Feeds the ingredientForm with the existing ingredient data.*/

@@ -1,15 +1,15 @@
 <template>
     <v-row>
         <v-col>
-            <h1 class="title text-driftwood">
+            <h1 class="title text-babyblue">
                 <img class="title-icon" :src="renderFlag(recipe.language)" alt="">
                 {{ recipe != null ? `${recipe.recipeName}` : '' }}
                 <v-spacer></v-spacer>
-                <v-btn fab icon color="driftwood" @click="isEditRecipeVisible = true">
+                <v-btn v-if="this.currentMember != null" fab icon color="babyblue" @click="isEditRecipeVisible = true">
                     <v-icon>mdi-pencil</v-icon>
                 </v-btn>
             </h1>
-            <b class="text-driftwood">{{ recipe.authorName }}</b>
+            <b class="text-babyblue">{{ recipe.authorName }}</b>
         </v-col>
     </v-row>
     <v-row>
@@ -33,7 +33,7 @@
                     <template v-for="ingredient in recipe.ingredients">
                         <div class="ingredient-item">
                             <span>{{ ingredient.quantity }}</span> &nbsp;
-                            <span style="flex-grow: 1">{{ this.ingredients.find(x => x.id == ingredient.id)?.unitType }}</span>
+                            <span style="flex-grow: 1">{{ ingredient.unitType }}</span>
                             <span>{{ renderIngredientName(ingredient.id, recipe.language) }}</span>
                         </div>
                     </template>
@@ -90,6 +90,7 @@ import RecipeForm from '../components/RecipeForm.vue';
 import { createNamespacedHelpers } from 'vuex';
 const ingredientHelper = createNamespacedHelpers("ingredient");
 const recipeHelper = createNamespacedHelpers("recipe");
+const authHelper = createNamespacedHelpers("auth");
 
     export default {
         name: "Recipe",
@@ -107,15 +108,7 @@ const recipeHelper = createNamespacedHelpers("recipe");
             }
         },
 
-        async created() {
-            if (this.recipes.length == 0) {
-                await this.fetchRecipes();
-                await this.fetchIngredients();
-            }
-            if (this.$route.params.id != null) {
-                this.recipe = this.recipes.find(x => x.id == this.$route.params.id);
-            }
-
+        created() {
             this.$watch(
                 () => this.$route.params,
                     (toParams, previousParams) => {
@@ -124,7 +117,18 @@ const recipeHelper = createNamespacedHelpers("recipe");
             )
         },
 
+        async mounted() {
+            if (this.recipes.length == 0) {
+                await this.fetchRecipes();
+                await this.fetchIngredients();
+            }
+            if (this.$route.params.id != null) {
+                this.recipe = this.recipes.find(x => x.id == this.$route.params.id);
+            }
+        },
+
         computed: {
+            ...authHelper.mapGetters(["currentMember"]),
             ...recipeHelper.mapGetters(["recipes"]),
             ...ingredientHelper.mapGetters([
                 "ingredients",
@@ -137,16 +141,9 @@ const recipeHelper = createNamespacedHelpers("recipe");
             ...ingredientHelper.mapActions(["fetchIngredients"]),
 
             renderFlag(language) {
-                switch (language) {
-                    case "da":
-                        return "../src/assets/denmark.png";
-                    
-                    case "en":
-                        return "../src/assets/united-kingdom.png";
-
-                    case "is":
-                        return "../src/assets/iceland.png";
-                }
+                if(language == undefined) return;
+                const prefix = process.env.NODE_ENV === 'development' ? '/src' : '';
+                return `${prefix}/assets/${language}.png`;
             },
 
             renderIngredientName(id, language) {
@@ -190,10 +187,11 @@ const recipeHelper = createNamespacedHelpers("recipe");
     }
     .ingredient-item {
         display: flex;
-        max-width: 500px;
+        // max-width: 500px;
         width: 100%;
         justify-content: flex-start;
         flex-flow: row nowrap;
+        border-bottom: 1px solid rgba(0,0,0,0.08);
     }
 
     @media screen and (max-width: 900px) {

@@ -5,6 +5,10 @@ import RecipeDetailView from './../pages/RecipeDetailView.vue';
 
 const routes = [
     {
+        path: "/",
+        component: RecipeListView
+    },
+    {
         path: "/ingredients",
         component: IngredientListView
     },

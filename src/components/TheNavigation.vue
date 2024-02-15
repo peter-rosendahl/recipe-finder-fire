@@ -1,36 +1,27 @@
 <template>
-    <v-card>
-      <v-navigation-drawer app fixed permanent :rail="isCollapsed">
+    <template v-if="this.currentMember != null && this.currentMember.isAdmin" v-for="item in links">
+        <router-link :to="item.link" class-active="active" class="link text-darkgreen">
+            <v-icon :icon="item.icon" :title="item.text"></v-icon>
+            <p>{{ item.text }}</p>
+        </router-link>
+    </template>
+    <!-- <v-card>
         <v-list nav class="text-darkgreen">
             <template v-for="item in links">
                 <router-link :to="item.link" class="text-darkgreen">
-                  <v-list-item :prepend-icon="item.icon" :title="item.text"></v-list-item>
+                    <v-list-item :prepend-icon="item.icon" :title="item.text"></v-list-item>
                 </router-link>
             </template>
         </v-list>
-        <template v-slot:append>
-            <v-row class="pb-2">
-                <v-spacer></v-spacer>
-                <v-col cols="12" sm="12" style="text-align: end">
-                    <v-btn icon flat @click="toggleExpand">
-                        <v-icon>{{ isCollapsed ? "mdi-chevron-right" : "mdi-chevron-left" }}</v-icon>
-                    </v-btn>
-                </v-col>
-            </v-row>
-        </template>
-      </v-navigation-drawer>
-    </v-card>
+    </v-card> -->
 </template>
 
 <script>
+import { createNamespacedHelpers } from 'vuex';
+const authHelper = createNamespacedHelpers('auth');
     export default {
-        data() {
-            return {
-                isCollapsed: true,
-            }
-        },
-
         computed: {
+            ...authHelper.mapGetters(["currentMember"]),
             links() {
                 return [
                     {
@@ -46,15 +37,38 @@
                 ]
             }
         },
-
-        methods: {
-            toggleExpand() {
-                this.isCollapsed = !this.isCollapsed;
-            }
-        }
     }
 </script>
 
 <style lang="scss" scoped>
+    .link {
+        padding: 10px 15px;
+        margin: 0 5px;
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+        border-radius: 4px;
+        background: #fff;
+        box-shadow: 0px 2px 3px rgba(0,0,0,0.2);
 
+        &.router-link-active {
+            // background-color: #978476;
+            background-color: #6badc1;
+            color: #fff !important;
+            box-shadow: none;
+        }
+
+        p {
+            font-weight: 100;
+            margin-left: 5px;
+        }
+    }
+
+    @media screen and (max-width: 900px) {
+        .link {
+            p {
+                display: none;
+            }
+        }
+    }
 </style>
