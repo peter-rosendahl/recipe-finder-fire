@@ -3,6 +3,7 @@ import ingredient from './ingredient';
 import recipe from './recipe';
 import auth from './auth';
 import profile from './profile';
+import shoppinglist from './shoppinglist';
 
 export default createStore({
     state: {},
@@ -13,6 +14,7 @@ export default createStore({
         ingredient,
         recipe,
         auth,
-        profile
+        profile,
+        shoppinglist,
     },
 });

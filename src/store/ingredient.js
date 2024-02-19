@@ -22,6 +22,7 @@ const state = {
         "Flour",
         "Fruits",
         "Grains",
+        "Herbs",
         "Meat substitutes",
         "Meats",
         "Mushrooms",

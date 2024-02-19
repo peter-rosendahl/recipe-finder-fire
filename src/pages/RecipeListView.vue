@@ -83,7 +83,7 @@
                 v-if="newRecipeForm.isVisible"
                 ref="recipeForm" 
                 :existing-recipe="newRecipeForm.template"
-                :on-success="closeForm"></recipe-form>
+                :on-success="(id) => goToRecipe(id)"></recipe-form>
         </v-card>
     </v-dialog>
 </template>
@@ -194,6 +194,10 @@ const profileHelper = createNamespacedHelpers("profile");
             }
         },
 
+        unmounted() {
+            this.closeForm();
+        },
+
         methods: {
             ...recipeHelper.mapActions(["fetchRecipes"]),
             ...profileHelper.mapActions(["setRecipeCount"]),
@@ -266,7 +270,7 @@ const profileHelper = createNamespacedHelpers("profile");
             },
 
             closeForm() {
-                this.recipeForm.isVisible = false;
+                this.newRecipeForm.isVisible = false;
             }
         }
     }

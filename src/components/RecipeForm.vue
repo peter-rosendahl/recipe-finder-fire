@@ -81,6 +81,16 @@
                             @input="onFieldChange('basic')"
                             ></v-text-field>
                     </v-col>
+                    <v-col cols="12" sm="4">
+                        <v-text-field
+                                v-model="recipe.link"
+                                hide-details
+                                density="compact"
+                                variant="solo"
+                                dense
+                                label="Reference URL">
+                            </v-text-field>
+                    </v-col>
                 </v-row>
             </template>
             <template v-if="currentPage == 2">
@@ -189,6 +199,7 @@ const recipeHelper = createNamespacedHelpers("recipe");
                     category: "",
                     images: [],
                     personCount: 1,
+                    link: "",
                     preparation: "",
                     preparationMinutes: "",
                 },
@@ -351,7 +362,7 @@ const recipeHelper = createNamespacedHelpers("recipe");
                 this.updateRecipeAsync(this.recipe)
                     .then(result => {
                         console.log('onSave result', result);
-                        this.onSuccess();
+                        this.onSuccess(this.recipe.id);
                     })
                     .catch(error => {
                         console.log("onSave error", error);

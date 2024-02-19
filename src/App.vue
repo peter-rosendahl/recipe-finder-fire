@@ -2,6 +2,7 @@
 import TheFooter from './components/TheFooter.vue';
 import TheNavigation from './components/TheNavigation.vue';
 import TheAuthBar from './components/TheAuthBar.vue';
+import TheShoppingList from './components/TheShoppingList.vue';
 </script>
 
 <template>
@@ -12,6 +13,7 @@ import TheAuthBar from './components/TheAuthBar.vue';
       <div class="center-nav">
         <TheNavigation/>
       </div>
+      <TheShoppingList/>
       <TheAuthBar/>
     </v-app-bar>
     <v-main class="background">
