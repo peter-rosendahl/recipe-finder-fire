@@ -13,16 +13,18 @@
         </v-col>
     </v-row>
     <v-row>
-        <v-col cols="12" sm="2" style="display: flex;">
-            <v-icon>mdi-timer-outline</v-icon> &nbsp;
-            <p>{{ recipe.preparationMinutes }} minutes</p>
-        </v-col>
-        <v-col cols="12" sm="2" style="display: flex">
-            <v-icon>mdi-account</v-icon>  &nbsp;
-            <p>{{ recipe.personCount }} person(s)</p>
-        </v-col>
-        <v-col cols="12" sm="2" style="display: flex">
-            <p>{{ recipe.culture }} {{ recipe.category }}</p>
+        <v-col cols="12" sm="4" class="flex horizontal">
+            <div class="flex horizontal ph_20 align_center">
+                <v-icon>mdi-timer-outline</v-icon> &nbsp;
+                <p>{{ recipe.preparationMinutes }} minutes</p>
+            </div>
+            <div class="flex horizontal ph_20 align_center">
+                <v-icon>mdi-account</v-icon>  &nbsp;
+                <p>{{ recipe.personCount }} person(s)</p>
+            </div>
+            <div class="flex horizontal ph_20 align_center">
+                <p>{{ recipe.culture }} {{ recipe.category }}</p>
+            </div>
         </v-col>
     </v-row>
     <v-row v-if="recipe.link != null && recipe.link.length > 0">
@@ -72,11 +74,7 @@
                 <v-card-title>Preparation</v-card-title>
                 <v-divider></v-divider>
                 <v-card-text>
-                    <!-- <p>{{ this.recipe.preparation }}</p> -->
-                    <template v-for="sentence in this.recipe.preparation.split('. ')">
-                        <p style="font-size: 18px; line-height: 24px;" v-if="sentence.length > 0">{{ sentence }}.</p>
-                        <br v-if="sentence.length > 0">
-                    </template>
+                    <p class="text base multiline">{{ this.recipe.preparation }}</p>
                 </v-card-text>
             </v-card>
         </v-col>

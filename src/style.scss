@@ -34,6 +34,17 @@ h1 {
   line-height: 1.1;
 }
 
+.text {
+  &.base {
+      font-size: 18px; 
+      line-height: 24px;
+  }
+  &.multiline {
+      white-space: pre;
+      text-wrap: wrap;
+  }
+}
+
 button {
   border-radius: 8px;
   border: 1px solid transparent;
@@ -51,6 +62,41 @@ button:hover {
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
+}
+
+.flex {
+  display: flex;
+
+  &.horizontal {
+    flex-direction: row;
+  }
+
+  &.nowrap {
+    flex-wrap: nowrap;
+  }
+
+  &.wrap {
+    flex-wrap: wrap;
+  }
+
+  &.space {
+    &_between {
+      justify-content: space-between;
+    }
+  }
+
+  &.align {
+    &_center { 
+      align-items: center;
+    }
+  }
+}
+
+.ph {
+  &_20 {
+    padding-right: 20px;
+    padding-left: 20px;
+  }
 }
 
 .card {
@@ -81,5 +127,23 @@ button:focus-visible {
   }
   button {
     background-color: #f9f9f9;
+  }
+}
+
+@media screen and (max-width: 1000px) {
+  // .v-card .v-card-title {
+  //   font-size: 1rem;
+  // }
+
+  .text {
+    &.mobile {
+      &_thin {
+        font-weight: 400;
+      }
+      &_smaller {
+        font-size: 0.8em;
+        line-height: 0.8em;
+      }
+    }
   }
 }

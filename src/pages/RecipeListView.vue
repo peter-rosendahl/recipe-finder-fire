@@ -1,5 +1,5 @@
 <template>
-    <page-sidebar>
+    <!-- <page-sidebar>
         <template #content>
             <h4>Order by</h4>
             <v-select
@@ -11,7 +11,7 @@
 
             <recipe-filter :on-changed="filterChanged"></recipe-filter>
         </template>
-    </page-sidebar>
+    </page-sidebar> -->
 
     <v-row>
         <template v-if="displayedRecipes.length > 0">

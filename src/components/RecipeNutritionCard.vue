@@ -1,6 +1,11 @@
 <template>
     <v-card>
-        <v-card-title>Recipe nutritions ({{ renderTotalWeight() }}g)</v-card-title>
+        <v-card-title>
+            <div class="flex horizontal wrap space_between align_center">
+                <span class="item">Recipe nutritions</span>
+                <span class="item text mobile_thin mobile_smaller">Total weight: {{ renderTotalWeight() }}g</span>
+            </div>
+        </v-card-title>
         <v-card-text>
             <div class="stat">
                 <p>Carbohydrates:</p>
