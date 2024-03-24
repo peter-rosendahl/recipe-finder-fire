@@ -1,143 +1,49 @@
 <template>
     <div class="auth-bar">
         <template v-if="this.currentMember != null">
-            <p>{{ this.currentMember?.name }}</p>
+            <h3>{{ this.currentMember?.name }}</h3>
+            <div class="flex horizontal space_between">
+                <p>Member since: </p>
+                <p>{{ this.currentMember?.createdAt }}</p>
+            </div>
+            <div class="flex horizontal space_between">
+                <p>Recipes: </p>
+                <p>{{ memberRecipeCount }}</p>
+            </div>
+
             <v-btn
-                icon="mdi-arrow-right-circle-outline"
-                title="Sign out"
+                block
+                color="blue-lighten-2"
                 @click="this.signOut()"   
-            ></v-btn>
+            >
+                <span style="color: white;">sign out</span>
+                <template v-slot:append>
+                    <v-icon color="white">mdi-arrow-right-circle-outline</v-icon>
+                </template>
+            </v-btn>
         </template>
         <template v-else>
-            <v-btn @click="promptLogin">Profile</v-btn>
+            <auth-form v-if="isAuthFormVisible"></auth-form>
         </template>
     </div>
-    <v-dialog v-model="loginDialog.isVisible" max-width="600px">
-        <v-card>
-            <v-card-title style="text-align: center; font-size: 32px; padding: 24px 0;">Profile</v-card-title>
-            <v-card-text>
-                <v-form v-model="isValid">
-                    <v-container>
-                        <!-- <v-row>
-                            <v-col>
-                                <p>Login or create profile</p>
-                            </v-col>
-                        </v-row> -->
-                        <v-row>
-                            <v-col>
-                                <v-text-field
-                                    v-model="loginDialog.email"
-                                    variant="solo"
-                                    label="Email*"
-                                    :rules="emailRules"
-                                    type="email"></v-text-field>
-                            </v-col>
-                            <v-col>
-                                <v-text-field
-                                    v-model="loginDialog.password"
-                                    variant="solo"
-                                    label="Password*"
-                                    :rules="passwordRules"
-                                    type="password"></v-text-field>
-                            </v-col>
-                        </v-row>
-                        <v-row>
-                            <v-col cols="12" sm="3">
-                                <v-switch
-                                    class="v-input--reverse"
-                                    v-model="loginDialog.isCreate"
-                                    color="orange-darken-3"
-                                    inset>
-                                    <template #label>
-                                        Create
-                                    </template>
-                                </v-switch>
-                            </v-col>
-                            <v-col>
-                                <v-text-field
-                                    v-model="loginDialog.name"
-                                    v-if="loginDialog.isCreate"
-                                    variant="solo"
-                                    :rules="nameRules"
-                                    label="Full name*"
-                                    type="text"></v-text-field>
-                                <p class="error">{{ loginDialog.errorMessage }}</p>
-                            </v-col>
-                        </v-row>
-                        <v-row>
-                            <v-col>
-                                <p>Forgot password?</p>
-                                <v-btn @click="sendResetPassword" variant="plain">Send reset password link to email</v-btn>
-                            </v-col>
-                        </v-row>
-                    </v-container>
-                </v-form>
-            </v-card-text>
-            <v-card-actions>
-                <v-container>
-                    <v-row>
-                        <v-col cols="auto">
-                            <v-btn blank @click="clearLogin">Cancel</v-btn>
-                        </v-col>
-                        <v-spacer></v-spacer>
-                        <v-col cols="auto">
-                            <v-btn color="success" @click="confirmLogin">{{loginDialog.isCreate ? 'Create' : 'Submit'}}</v-btn>
-                        </v-col>
-                    </v-row>
-                </v-container>
-            </v-card-actions>
-        </v-card>
-    </v-dialog>
 </template>
 
 <script>
 import { createNamespacedHelpers } from 'vuex';
+import AuthForm from './profile/AuthForm.vue';
 const authHelper = createNamespacedHelpers("auth");
+const recipeHelper = createNamespacedHelpers("recipe");
     export default {
         data() {
             return {
-                isValid: false,
                 memberSignedIn: null,
-                labels: {
-                    email: "Email",
-                    password: "Password"
-                },
-                loginDialog: {
-                    isVisible: false,
-                    email: "",
-                    password: "",
-                    isCreate: false,
-                    name: "",
-                    isLoading: false,
-                    errorMessage: ""
-                },
-                emailRules: [
-                    v => {
-                        if (v) return true
-                        return 'Email is required'
-                    },
-                    v => {
-                        if (/.+@.+\..+/.test(v)) return true
-                        return 'E-mail must be valid.'
-                    }
-                ],
-                passwordRules: [
-                    v => {
-                        if (v) return true
-                        return 'Password is required'
-                    },
-                    v => {
-                        if (v.length > 5) return true
-                        return 'Password must be minimum 6 characters'
-                    }
-                ],
-                nameRules: [
-                    v => {
-                        if (!this.loginDialog.isCreate || v) return true
-                        return 'Name is required'
-                    }
-                ]
+                isAuthFormVisible: true,
+                memberRecipeCount: 0,
             }
+        },
+
+        components: {
+            'auth-form': AuthForm
         },
 
         async created() {
@@ -146,7 +52,7 @@ const authHelper = createNamespacedHelpers("auth");
 
         watch: {
             currentMember(oldValue, updatedValue) {
-                console.log(oldValue, updatedValue);
+                console.log('currentMember triggered', oldValue, updatedValue);
                 this.setlocalMemberData(updatedValue);
             }
         },
@@ -163,9 +69,10 @@ const authHelper = createNamespacedHelpers("auth");
                 "signOut",
                 "requestPasswordReset"
             ]),
+            ...recipeHelper.mapActions(["fetchRecipeListByAuthorId"]),
 
             promptLogin() {
-                this.loginDialog.isVisible = true;
+                this.isAuthFormVisible = !this.isAuthFormVisible;
             },
 
             async confirmLogin() {
@@ -196,13 +103,18 @@ const authHelper = createNamespacedHelpers("auth");
 
             async checkForLoggedIn() {
                 if (await this.isLoggedIn()) {
+                    console.log('checkForLoggedIn Is Logged In', this.currentMember);
                     this.setlocalMemberData(this.currentMember);
+                    await this.fetchRecipeListByAuthorId({uid: this.currentMember.id, callback: result => {
+                        this.memberRecipeCount = result.length;
+                    }});
                 }
             },
 
             setlocalMemberData(data) {
                 this.memberSignedIn = data;
                 this.isAuthenticated = data != null;
+                this.memberRecipeCount = data?.recipeCount;
             },
 
             async sendResetPassword() {
@@ -223,11 +135,9 @@ const authHelper = createNamespacedHelpers("auth");
 
 <style lang="scss" scoped>
     .auth-bar {
-        display: flex;
-        align-items: center;
+        padding: 16px;
     }
-
     .error {
         color: red;
     }
-</style>
+</style>./profile/AuthForm.vue

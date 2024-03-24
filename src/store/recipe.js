@@ -1,5 +1,5 @@
 import { recipeRef, setRef } from "../services/firebase";
-import { get, set } from 'firebase/database';
+import { onValue, get, set, query, orderByChild, equalTo } from 'firebase/database';
 import store from './index';
 
 const state = {
@@ -89,6 +89,22 @@ const actions = {
             commit('SET_LOADING', false);
         }
     },
+
+    async fetchRecipeListByAuthorId(store, {uid, callback}) {
+        if (store.state.recipeList.length > 0) {
+            const list = store.state.recipeList.filter(x => x.authorId == uid);
+            callback(list);
+        } else {
+            await get(query(recipeRef,
+                orderByChild('authorId'),
+                equalTo(uid)
+            )).then( snapshot => {
+                const objects = snapshot.val();
+                callback(Object.values(objects));
+            });
+        }
+    },
+
     updateRecipeAsync({commit}, data) {
         console.log('updateRecipeAsync data', data);
         if (data.id == 0) {

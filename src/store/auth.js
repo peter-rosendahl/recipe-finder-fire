@@ -1,9 +1,10 @@
-import { signIn, createMember, memberRef, sendResetPasswordRequest, getCurrentMember, logout } from "../services/firebase";
+import { signIn, createMember, memberRef, extractCurrentMemberData, sendResetPasswordRequest, getCurrentMember, getMemberById, logout } from "../services/firebase";
 
 const state = {
     currentMember: null,
     members: [],
-    loading: false
+    loading: false,
+    isMenuOpen: false
 };
 
 const mutations = {
@@ -15,6 +16,10 @@ const mutations = {
     },
     SET_LOADING(state, isLoading) {
         state.loading = isLoading;
+    },
+    SET_MENU_OPEN(state, isOpen) {
+        console.log('SET_MENU_OPEN', isOpen);
+        state.isMenuOpen = isOpen;
     }
 };
 
@@ -32,12 +37,20 @@ const actions = {
         commit('SET_CURRENT_MEMBER', data);
     },
 
-    async signIn({ commit }, data) {
+    async signIn(store, data) {
         if (data.email == null || data.password == null) return;
-        commit("SET_LOADING", true);
+        store.commit("SET_LOADING", true);
         await signIn(data.email, data.password)
-            .then(success => {
-                console.log("auth.signIn success", success);
+            .then(async credentials => {
+                console.log("auth.signIn success", credentials);
+                const memberMeta = extractCurrentMemberData(credentials.user);
+                const member = await store.dispatch('fetchMemberById', credentials.user.uid);
+                if (member != null) {
+                    store.dispatch('setMember', {
+                        ...member,
+                        ...memberMeta
+                    })
+                }
             })
             .catch(error => {
                 console.log("auth.signIn error", error);
@@ -46,18 +59,23 @@ const actions = {
     },
 
     async isLoggedIn(store) {
-        const member = await getCurrentMember();
-        if (member == null) {
-            console.log("no member is logged in", member);
-            return false;
-        } else {
-            if (store.state.currentMember == null) {
-                console.log("member is logged in", member);
-                store.commit("SET_CURRENT_MEMBER", member);
+        if (store.state.currentMember == null) {
+            const member = await getCurrentMember();
+            if (member == null) {
+                console.log("no member is logged in", member);
+                return false;
+            } else {
+                store.dispatch('setMember', member);
                 return true;
             }
+        } else {
+            return true;
         }
-        return false;
+    },
+
+    async fetchMemberById(store, uid) {
+        console.log('fetchMemberById', uid);
+        return await getMemberById(uid);
     },
 
     async requestPasswordReset({commit}, data) {
@@ -77,6 +95,14 @@ const actions = {
             })
     },
 
+    /** Toggles the Account menu.\
+     * @param isOpen Boolean value.
+    */
+    toggleAccountMenu({commit, state}, isOpen) {
+        console.log('toggleAccountMenu triggered', isOpen);
+        commit("SET_MENU_OPEN", isOpen ?? !state.isMenuOpen);
+    },
+
     async signOut(store) {
         await logout()
         .then(success => {
@@ -89,7 +115,8 @@ const actions = {
 const getters = {
     memberList: (state) => state.members,
     isAuthLoading: (state) => state.loading,
-    currentMember: (state) => state.currentMember
+    currentMember: (state) => state.currentMember,
+    isAccountMenuOpen: (state) => state.isMenuOpen
 }
 
 export default {

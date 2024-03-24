@@ -13,29 +13,52 @@
         </v-col>
     </v-row>
     <v-row>
-        <v-col cols="12" sm="2" style="display: flex;">
-            <v-icon>mdi-timer-outline</v-icon> &nbsp;
-            <p>{{ recipe.preparationMinutes }} minutes</p>
+        <v-col cols="12" sm="4" class="flex horizontal">
+            <div class="flex horizontal ph_20 align_center">
+                <v-icon>mdi-timer-outline</v-icon> &nbsp;
+                <p>{{ recipe.preparationMinutes }} minutes</p>
+            </div>
+            <div class="flex horizontal ph_20 align_center">
+                <v-icon>mdi-account</v-icon>  &nbsp;
+                <p>{{ recipe.personCount }} person(s)</p>
+            </div>
+            <div class="flex horizontal ph_20 align_center">
+                <p>{{ recipe.culture }} {{ recipe.category }}</p>
+            </div>
         </v-col>
-        <v-col cols="12" sm="2" style="display: flex">
-            <v-icon>mdi-account</v-icon>  &nbsp;
-            <p>{{ recipe.personCount }} person(s)</p>
-        </v-col>
-        <v-col cols="12" sm="2" style="display: flex">
-            <p>{{ recipe.culture }} {{ recipe.category }}</p>
+    </v-row>
+    <v-row v-if="recipe.link != null && recipe.link.length > 0">
+        <v-col>
+            <span>Link reference: </span><a v-if="recipe.link.indexOf('http') != -1" target="_blank" :href="recipe.link">{{ recipe.link }}</a>
+            <p v-else>{{ recipe.link }}</p>
         </v-col>
     </v-row>
     <v-row>
         <v-col cols="12" sm="4">
             <v-card>
-                <v-card-title>Ingredients</v-card-title>
+                <v-card-item>
+                    <v-card-title>Ingredients</v-card-title>
+                    <template v-slot:append>
+                        <v-btn icon color="babyblue" title="Add ingredients to shopping list" density="compact" @click="addToGroceryList">
+                            <v-icon size="small">mdi-playlist-plus</v-icon>
+                            <v-tooltip
+                                activator="parent"
+                                location="top"
+                            >Add ingredients to shopping list</v-tooltip>
+                        </v-btn>
+                    </template>
+                </v-card-item>
                 <v-card-text>
-                    <template v-for="ingredient in recipe.ingredients">
-                        <div class="ingredient-item">
-                            <span>{{ ingredient.quantity }}</span> &nbsp;
-                            <span style="flex-grow: 1">{{ ingredient.unitType }}</span>
-                            <span>{{ renderIngredientName(ingredient.id, recipe.language) }}</span>
-                        </div>
+                    <template v-for="ingredient in recipeIngredients">
+                        <swipe>
+                            <template v-slot:content>
+                                <div class="ingredient-item">
+                                    <span>{{ ingredient.quantity }}</span> &nbsp;
+                                    <span style="flex-grow: 1">{{ ingredient.unitType }}</span>
+                                    <span>{{ ingredient.name }}</span>
+                                </div>
+                            </template>
+                        </swipe>
                     </template>
                 </v-card-text>
             </v-card>
@@ -55,11 +78,7 @@
                 <v-card-title>Preparation</v-card-title>
                 <v-divider></v-divider>
                 <v-card-text>
-                    <!-- <p>{{ this.recipe.preparation }}</p> -->
-                    <template v-for="sentence in this.recipe.preparation.split('.')">
-                        <p style="font-size: 18px; line-height: 24px;" v-if="sentence.length > 0">{{ sentence }}.</p>
-                        <br v-if="sentence.length > 0">
-                    </template>
+                    <p class="text base multiline">{{ this.recipe.preparation }}</p>
                 </v-card-text>
             </v-card>
         </v-col>
@@ -88,21 +107,25 @@
 import RecipeNutritionCard from '../components/RecipeNutritionCard.vue';
 import RecipeForm from '../components/RecipeForm.vue';
 import { createNamespacedHelpers } from 'vuex';
+import Swipe from '../components/Swipe.vue';
 const ingredientHelper = createNamespacedHelpers("ingredient");
 const recipeHelper = createNamespacedHelpers("recipe");
 const authHelper = createNamespacedHelpers("auth");
+const shoppingListHelper = createNamespacedHelpers("shoppinglist");
 
     export default {
         name: "Recipe",
 
         components: {
             'nutrition-card': RecipeNutritionCard,
-            'recipe-form': RecipeForm
+            'recipe-form': RecipeForm,
+            'swipe': Swipe
         },
 
         data() {
             return {
                 recipe: {},
+                recipeIngredients: [],
                 nutritions: [],
                 isEditRecipeVisible: false,
             }
@@ -118,18 +141,23 @@ const authHelper = createNamespacedHelpers("auth");
         },
 
         async mounted() {
+            window.scrollTo(0, 0);
             if (this.recipes.length == 0) {
                 await this.fetchRecipes();
+            }
+            if (this.ingredients?.length == 0) {
                 await this.fetchIngredients();
             }
             if (this.$route.params.id != null) {
                 this.recipe = this.recipes.find(x => x.id == this.$route.params.id);
+                this.recipeIngredients = this.renderDetailedIngredientList(this.recipe.ingredients, this.recipe.language);
             }
         },
 
         computed: {
             ...authHelper.mapGetters(["currentMember"]),
             ...recipeHelper.mapGetters(["recipes"]),
+            ...shoppingListHelper.mapGetters(["shoppingList"]),
             ...ingredientHelper.mapGetters([
                 "ingredients",
                 "unitTypeList"
@@ -139,11 +167,27 @@ const authHelper = createNamespacedHelpers("auth");
         methods: {
             ...recipeHelper.mapActions(["fetchRecipes"]),
             ...ingredientHelper.mapActions(["fetchIngredients"]),
+            ...shoppingListHelper.mapActions(["addToShoppingList"]),
 
             renderFlag(language) {
                 if(language == undefined) return;
                 const prefix = process.env.NODE_ENV === 'development' ? '/src' : '';
                 return `${prefix}/assets/${language}.png`;
+            },
+
+            renderDetailedIngredientList(ingredients, language) {
+                const listOfIngredients = [];
+                for (let i = 0; i < ingredients.length; i++) {
+                    const ingredient = this.recipe.ingredients[i];
+                    const databaseIngredient = this.ingredients.find(x => x.id == ingredient.id);
+                    const name = this.renderIngredientName(ingredient.id, language);
+                    listOfIngredients.push({
+                        ...ingredient,
+                        category: databaseIngredient.category,
+                        name
+                    });
+                }
+                return listOfIngredients;
             },
 
             renderIngredientName(id, language) {
@@ -163,6 +207,11 @@ const authHelper = createNamespacedHelpers("auth");
                             break;
                     }
                 }
+            },
+
+            addToGroceryList() {
+                console.log('adding to shopping list', this.recipeIngredients);
+                this.addToShoppingList([...this.recipeIngredients]);
             },
 
             closeForm() {

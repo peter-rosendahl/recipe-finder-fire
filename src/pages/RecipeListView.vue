@@ -1,5 +1,5 @@
 <template>
-    <page-sidebar>
+    <!-- <page-sidebar>
         <template #content>
             <h4>Order by</h4>
             <v-select
@@ -11,7 +11,7 @@
 
             <recipe-filter :on-changed="filterChanged"></recipe-filter>
         </template>
-    </page-sidebar>
+    </page-sidebar> -->
 
     <v-row>
         <template v-if="displayedRecipes.length > 0">
@@ -83,7 +83,7 @@
                 v-if="newRecipeForm.isVisible"
                 ref="recipeForm" 
                 :existing-recipe="newRecipeForm.template"
-                :on-success="closeForm"></recipe-form>
+                :on-success="(id) => goToRecipe(id)"></recipe-form>
         </v-card>
     </v-dialog>
 </template>
@@ -183,7 +183,7 @@ const profileHelper = createNamespacedHelpers("profile");
             currentMember: {
                 handler(changes) {
                     console.log('currentMember watch triggered', changes);
-                    this.displayedRecipes = this.setDisplayedRecipes(changes.id, this.orderBy.selected, this.recipes);
+                    this.displayedRecipes = this.setDisplayedRecipes(changes?.id, this.orderBy.selected, this.recipes);
                 }
             },
             isLoading: {
@@ -192,6 +192,10 @@ const profileHelper = createNamespacedHelpers("profile");
                 },
                 // immediate: true
             }
+        },
+
+        unmounted() {
+            this.closeForm();
         },
 
         methods: {
@@ -266,7 +270,7 @@ const profileHelper = createNamespacedHelpers("profile");
             },
 
             closeForm() {
-                this.recipeForm.isVisible = false;
+                this.newRecipeForm.isVisible = false;
             }
         }
     }
