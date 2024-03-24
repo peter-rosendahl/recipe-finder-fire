@@ -183,7 +183,7 @@ const profileHelper = createNamespacedHelpers("profile");
             currentMember: {
                 handler(changes) {
                     console.log('currentMember watch triggered', changes);
-                    this.displayedRecipes = this.setDisplayedRecipes(changes.id, this.orderBy.selected, this.recipes);
+                    this.displayedRecipes = this.setDisplayedRecipes(changes?.id, this.orderBy.selected, this.recipes);
                 }
             },
             isLoading: {

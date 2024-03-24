@@ -4,6 +4,7 @@ import { sendPasswordResetEmail, getAuth, createUserWithEmailAndPassword, signIn
 import store from '../store'
 import { useFirebaseAuth, getCurrentUser } from 'vuefire';
 import { firebaseConfig } from './firebase-config';
+import moment from 'moment';
 
 export const firebaseApp = initializeApp(firebaseConfig);
 
@@ -23,7 +24,8 @@ export const createMember = (email, password, name) => {
             const data = {
                 id: credentials.user.uid,
                 name: name,
-                recipeCount: 0
+                recipeCount: 0,
+                createdAt: moment(credentials.user.metadata.creationTime).format('DD. MMMM YYYY'),
             };
             console.log('firebase.createMember data', data);
             await set(setRef(`members/${data.id}`), data);
@@ -36,14 +38,36 @@ export const createMember = (email, password, name) => {
 }
 
 export const getCurrentMember = async() => {
-    const user = await getCurrentUser();
+    var user = await getCurrentUser();
     if (user != null) {
-        const snapshot = await get(ref(db, `members/${user.uid}`));
-        if (snapshot != null) {
-            return snapshot.val();
-        }
+        console.log('firebase current member', user);
+        const memberData = await getMemberById(user.uid);
+        const userData = await extractCurrentMemberData(user);
+        return {
+            ...memberData, 
+            ...userData
+        }   
     }
     return null;
+}
+
+export const extractCurrentMemberData = (user) => {
+    return {
+        createdAt: moment(user.metadata.creationTime).format('DD. MMMM YYYY'),
+        isVerified: user.emailVerified,
+        loginType: user.providerData[0].providerId
+    }
+}
+
+export const getMemberById = async(uid) => {
+    const snapshot = await get(ref(db, `members/${uid}`));
+    if (snapshot != null) {
+        return snapshot.val();
+    }
+}
+
+export const updateProfile = async(data) => {
+
 }
 
 export const sendResetPasswordRequest = async(email) => {

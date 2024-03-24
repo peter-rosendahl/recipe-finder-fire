@@ -39,7 +39,7 @@
                 <v-card-item>
                     <v-card-title>Ingredients</v-card-title>
                     <template v-slot:append>
-                        <v-btn icon color="babyblue" title="Add ingredients to shopping list" density="compact" @click="addToShoppingList">
+                        <v-btn icon color="babyblue" title="Add ingredients to shopping list" density="compact" @click="addToGroceryList">
                             <v-icon size="small">mdi-playlist-plus</v-icon>
                             <v-tooltip
                                 activator="parent"
@@ -50,11 +50,15 @@
                 </v-card-item>
                 <v-card-text>
                     <template v-for="ingredient in recipeIngredients">
-                        <div class="ingredient-item">
-                            <span>{{ ingredient.quantity }}</span> &nbsp;
-                            <span style="flex-grow: 1">{{ ingredient.unitType }}</span>
-                            <span>{{ ingredient.name }}</span>
-                        </div>
+                        <swipe>
+                            <template v-slot:content>
+                                <div class="ingredient-item">
+                                    <span>{{ ingredient.quantity }}</span> &nbsp;
+                                    <span style="flex-grow: 1">{{ ingredient.unitType }}</span>
+                                    <span>{{ ingredient.name }}</span>
+                                </div>
+                            </template>
+                        </swipe>
                     </template>
                 </v-card-text>
             </v-card>
@@ -103,6 +107,7 @@
 import RecipeNutritionCard from '../components/RecipeNutritionCard.vue';
 import RecipeForm from '../components/RecipeForm.vue';
 import { createNamespacedHelpers } from 'vuex';
+import Swipe from '../components/Swipe.vue';
 const ingredientHelper = createNamespacedHelpers("ingredient");
 const recipeHelper = createNamespacedHelpers("recipe");
 const authHelper = createNamespacedHelpers("auth");
@@ -113,7 +118,8 @@ const shoppingListHelper = createNamespacedHelpers("shoppinglist");
 
         components: {
             'nutrition-card': RecipeNutritionCard,
-            'recipe-form': RecipeForm
+            'recipe-form': RecipeForm,
+            'swipe': Swipe
         },
 
         data() {
@@ -135,6 +141,7 @@ const shoppingListHelper = createNamespacedHelpers("shoppinglist");
         },
 
         async mounted() {
+            window.scrollTo(0, 0);
             if (this.recipes.length == 0) {
                 await this.fetchRecipes();
             }
@@ -160,7 +167,7 @@ const shoppingListHelper = createNamespacedHelpers("shoppinglist");
         methods: {
             ...recipeHelper.mapActions(["fetchRecipes"]),
             ...ingredientHelper.mapActions(["fetchIngredients"]),
-            ...shoppingListHelper.mapActions(["addToList"]),
+            ...shoppingListHelper.mapActions(["addToShoppingList"]),
 
             renderFlag(language) {
                 if(language == undefined) return;
@@ -202,9 +209,9 @@ const shoppingListHelper = createNamespacedHelpers("shoppinglist");
                 }
             },
 
-            addToShoppingList() {
+            addToGroceryList() {
                 console.log('adding to shopping list', this.recipeIngredients);
-                this.addToList([...this.recipeIngredients]);
+                this.addToShoppingList([...this.recipeIngredients]);
             },
 
             closeForm() {

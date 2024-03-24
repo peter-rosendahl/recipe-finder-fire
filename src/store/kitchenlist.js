@@ -8,14 +8,12 @@ const mutations = {
     },
     UPDATE(state, item) {
         const index = state.list.map(x => x.id).indexOf(item.id);
-        console.log("updating item", item);
         if (index != -1) {
             state.list[index] = item;
         }
     },
     REMOVE(state, id) {
         const i = state.list.map(x => x.id).indexOf(id);
-        console.log("removing item by index", i, )
         if (i != -1) {
             state.list.splice(i, 1);
         }
@@ -26,8 +24,8 @@ const mutations = {
 };
 
 const actions = {
-    addToShoppingList({commit, state}, list) {
-        console.log("store: adding items to shopping list");
+    addToKitchenList({commit, state}, list) {
+        console.log("store: adding items to kitchen list");
         if (Array.isArray(list)) {
             console.log('store: receiving object is array');
             const storedList = [...state.list],
@@ -46,7 +44,6 @@ const actions = {
                     console.log('current item is not in completeList nor in sortedIdList', item.id);
                     completeList.push({
                             ...item,
-                            isFetched: false,
                             quantities: [
                                 {
                                     amount: item.quantity,
@@ -80,7 +77,6 @@ const actions = {
                             }
                         ];
                     }
-                    existingItem.isFetched = false;
                     console.log('existing item with updated quantity', existingItem);
 
                     completeList.push(existingItem);
@@ -132,35 +128,26 @@ const actions = {
         }
     },
 
-    markAsFetched({commit, state}, item) {
-        console.log("markasFetched item", item);
-        const existingItem = state.list.find(x => x.id == item.id);
-        if (existingItem == null) return;
-
-        existingItem.isFetched = true;
-        commit("UPDATE", existingItem);
-    },
-
-    removeFromShoppingList({commit}, list) {
-        console.log("store: removing items to shopping list", list);
+    removeFromKitchenList({commit}, list) {
+        console.log("store: removing items to kitchen list");
         if (Array.isArray(list)) {
             const descList = list.sort((a,b) => b.id - a.id);
             for (let i = descList.length - 1; i >= 0; i--) {
                 const item = descList[i];
-                commit("REMOVE", item.id);
+                commit("REMOVE", item);
             }
         } else {
-            commit("REMOVE", list.id);
+            commit("REMOVE", list);
         }
     },
 
-    clearShoppingList({commit}) {
+    clearList({commit}) {
         commit("CLEAR");
     }
 };
 
 const getters = {
-    shoppingList: (state) => state.list,
+    kitchenList: (state) => state.list,
 };
 
 export default {
