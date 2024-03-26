@@ -83,6 +83,17 @@
             </v-card>
         </v-col>
     </v-row>
+    <v-row v-if="this.currentMember != null && this.recipe?.authoId == this.currentMember.uid && this.recipe?.personalNotes != null">
+        <v-col>
+            <v-card>
+                <v-card-title>Personal Notes</v-card-title>
+                <v-divider></v-divider>
+                <v-card-text>
+                    <p class="text base multiline">{{ this.recipe.personalNotes }}</p>
+                </v-card-text>
+            </v-card>
+        </v-col>
+    </v-row>
 
     <v-dialog 
         v-model="isEditRecipeVisible"

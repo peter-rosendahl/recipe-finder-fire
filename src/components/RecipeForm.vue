@@ -169,6 +169,15 @@
                         ></v-textarea>
                     </v-col>
                 </v-row>
+                <v-row>
+                    <v-col>
+                        <v-textarea
+                            v-model="recipe.personalNotes"
+                            variant="solo"
+                            density="compact"
+                            label="Personal Notes"></v-textarea>
+                    </v-col>
+                </v-row>
             </template>
             <v-row class="justify-between">
                 <v-col>
@@ -186,6 +195,7 @@
 <script>
 import { createNamespacedHelpers } from 'vuex';
 import FormProgress from './recipe/FormProgress.vue';
+import recipe from '../store/recipe';
 const ingredientHelper = createNamespacedHelpers("ingredient");
 const recipeHelper = createNamespacedHelpers("recipe");
 
@@ -211,6 +221,7 @@ const recipeHelper = createNamespacedHelpers("recipe");
                     link: "",
                     preparation: "",
                     preparationMinutes: "",
+                    personalNotes: "",
                 },
                 languageList: [
                     {code: "da", label: "Danish"},
