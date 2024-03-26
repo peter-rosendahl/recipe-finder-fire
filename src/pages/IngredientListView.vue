@@ -1,16 +1,16 @@
 <template>
         <v-row>
             <v-col>
-                <IngredientList />
+                <IngredientTable />
             </v-col>
         </v-row>
 </template>
 
 <script>
-    import IngredientList from '../components/IngredientList.vue';
+    import IngredientTable from '../components/ingredient/IngredientTable.vue';
     export default {
         components: {
-            IngredientList
+            IngredientTable
         }
     }
 </script>

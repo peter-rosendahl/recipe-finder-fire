@@ -85,7 +85,8 @@
     </v-row>
 
     <v-dialog 
-        v-model="isEditRecipeVisible">
+        v-model="isEditRecipeVisible"
+        max-width="900px">
         <v-card>
             <v-toolbar>
                 <v-toolbar-title class="text-h6">

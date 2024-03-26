@@ -4,7 +4,7 @@
             <form-progress
                 ref="progress"
                 :total-basic-fields="6"
-                :total-ingredient-fields="this.recipeIngredients.length *2"
+                :total-ingredient-fields="this.recipeIngredientList.length *2"
                 :total-preparation-fields="30"
                 :current-page="currentPage"
                 @onPageChange="goToPage"></form-progress>
@@ -99,41 +99,49 @@
                         <h3 class="page-title">Ingredients</h3>
                     </v-col>
                 </v-row>
-                <template v-for="item in recipeIngredients">
-                    <v-row>
-                        <v-col cols="12" sm="6">
-                            <v-select 
-                                :items="this.ingredients.map(x => x.name.en)" 
-                                v-model="item.selectedName"
-                                @update:modelValue="(e) => setIngredient(e, item)"
-                                variant="solo"
-                                density="compact"
-                                hide-details
-                                single-line
-                                dense
-                                label="Name"
-                            ></v-select>
-                        </v-col>
-                        <v-col cols="12" sm="4">
-                            <v-text-field
-                                v-model="item.quantity"
-                                hide-details
-                                density="compact"
-                                variant="solo"
-                                dense
-                                label="Quantity">
-                            </v-text-field>
-                        </v-col>
-                        <v-col cols="12" sm="2">
-                            <v-select
-                                :items="item.unitTypeList"
-                                v-model="item.selectedUnitType"
-                                variant="solo"
-                                density="compact"
-                                dense
-                                label="Unit type"></v-select>
-                        </v-col>
-                    </v-row>
+                <template v-for="item in recipe.recipeIngredients" :key="item.listId">
+                    <div class="flex row wrap align_center mb_20">
+                        <v-text-field
+                            class="flex-item o1 mobile_o2"
+                            style="max-width: 100px;"
+                            v-model="item.quantity"
+                            hide-details
+                            density="compact"
+                            variant="solo"
+                            dense
+                            label="Quantity">
+                        </v-text-field>
+                        <v-select
+                            class="flex-item o2 mobile_o3"
+                            style="max-width: 100px;"
+                            :items="item.unitTypeList"
+                            v-model="item.selectedUnitType"
+                            hide-details
+                            variant="solo"
+                            density="compact"
+                            dense
+                            label="Unit type"></v-select>
+                        <v-select 
+                            class="flex-item mobile_grow o3 mobile_o1"
+                            :items="this.ingredients.map(x => x.name.en)" 
+                            v-model="item.selectedName"
+                            @update:modelValue="(e) => setIngredient(e, item)"
+                            variant="solo"
+                            density="compact"
+                            hide-details
+                            single-line
+                            dense
+                            label="Name"
+                        ></v-select>
+                        <v-btn 
+                            fab 
+                            icon 
+                            color="white" 
+                            @click="() => removeIngredient(item)"
+                            class="flex-item mobile_o4 ml_auto">
+                            <v-icon size="18px" icon="mdi-trash-can-outline" color="red"></v-icon>
+                        </v-btn>
+                    </div>
                 </template>
                 <v-row>
                     <v-col>
@@ -198,12 +206,12 @@ const recipeHelper = createNamespacedHelpers("recipe");
                     culture: "",
                     category: "",
                     images: [],
+                    recipeIngredients: [],
                     personCount: 1,
                     link: "",
                     preparation: "",
                     preparationMinutes: "",
                 },
-                recipeIngredients: [],
                 languageList: [
                     {code: "da", label: "Danish"},
                     {code: "en", label: "English"},
@@ -227,6 +235,24 @@ const recipeHelper = createNamespacedHelpers("recipe");
             }
         },
 
+        watch: {
+            recipeIngredientList: {
+                deep: true,
+                handler(value, oldValue) {
+                    console.log('recipeIngredientList oldValue', oldValue);
+                    console.log('recipeIngredientList value', value);
+                    if (oldValue != null && oldValue.length > 0) {
+                        this.recipe.recipeIngredients = oldValue;
+                        return;
+                    }
+                    if (value != null && value.length > 0) {
+                        this.recipe.recipeIngredients = value;
+                        return;
+                    }
+                }
+            }
+        },
+
         created() {
             if (this.ingredients.length == 0) {
                 this.fetchIngredients();
@@ -235,7 +261,7 @@ const recipeHelper = createNamespacedHelpers("recipe");
                 console.log("existing recipe", this.existingRecipe);
                 this.recipe = this.existingRecipe;
                 if (this.existingRecipe.ingredients.length > 0) {
-                    this.recipeIngredients = this.existingRecipe.ingredients.map(item => {
+                    this.setRecipeIngredientList(this.existingRecipe.ingredients.map(item => {
                         const src = this.ingredients.find(x => x.id == item.id);
                         if (src != null) {
                             return {
@@ -245,21 +271,33 @@ const recipeHelper = createNamespacedHelpers("recipe");
                                 unitTypeList: src.unitType
                             };
                         }
-                    })
+                    }));
                 } else {
                     this.addIngredient();
                 }
             }
         },
 
+        unmounted() {
+            this.clearRecipeIngredientList();
+        },
+
         computed: {
-            ...ingredientHelper.mapGetters(["ingredients", "unitTypeList"]),
+            ...ingredientHelper.mapGetters(["ingredients", "unitTypeList", "recipeIngredientList"]),
             ...recipeHelper.mapGetters(["recipeCategoryList", "recipeCultureList"]),
         },
 
         methods: {
             ...recipeHelper.mapActions(["updateRecipeAsync"]),
-            ...ingredientHelper.mapActions(["fetchIngredients"]),
+            ...ingredientHelper.mapActions(
+                [
+                    "fetchIngredients", 
+                    "setRecipeIngredientList", 
+                    "clearRecipeIngredientList",
+                    "appendToRecipeIngredientList",
+                    "updateRecipeIngredient",
+                    "removeRecipeIngredient"
+                ]),
 
             goToNext() {
                 if (this.currentPage == 3) return;
@@ -282,24 +320,31 @@ const recipeHelper = createNamespacedHelpers("recipe");
                 };
                 console.log("addIngredient", this.ingredients);
                 const tmp = this.ingredients[0];
-                this.recipeIngredients.push({
+                this.appendToRecipeIngredientList({
+                    listId: this.recipe.recipeIngredients?.length ?? 0,
                     id: tmp.id,
                     name: tmp.name,
                     selectedName: tmp.name.en,
                     quantity: 1,
                     recipeId: 0,
-                    unitType: "g"
+                    unitTypeList: tmp.unitType,
+                    selectedUnitType: tmp.unitType[0]
                 });
             },
 
+            removeIngredient(item) {
+                this.removeRecipeIngredient(item);
+            },
+
             setIngredient(value, item) {
-                console.log('setIngredient', value, item, this.recipeIngredients);
+                console.log('setIngredient', value, item, this.recipeIngredientList);
                 const ingredient = this.ingredients.find(x => x.name.en.includes(value));
                 if (ingredient != null) {
-                    console.log("found ingredient", ingredient);
-                    const existing = this.recipeIngredients.find(x => x.selectedName == value);
+                    console.log("found ingredient", ingredient, ingredient.id, ingredient.unitType);
+                    const existing = this.recipeIngredientList.find(x => x.selectedName == value);
                     console.log("existing ingredient", existing);
                     const itemtoBeAdded = {
+                        listId: existing.listId ?? 0,
                         id: ingredient.id,
                         name: ingredient.name,
                         selectedName: value,
@@ -307,15 +352,14 @@ const recipeHelper = createNamespacedHelpers("recipe");
                         selectedUnitType: ingredient.unitType[0],
                         quantity: 0,
                     };
+                    console.log("item to be added", Object.values(itemtoBeAdded));
+                    console.log("status on the actual list", this.recipeIngredientList);
 
                     if (existing == null) {
-                        this.recipeIngredients.push(itemtoBeAdded);
+                        this.appendToRecipeIngredientList(itemtoBeAdded);
                     } else {
                         itemtoBeAdded.quantity = existing.quantity;
-                        const index = this.recipeIngredients.indexOf(existing);
-                        console.log('found item', itemtoBeAdded);
-                        this.recipeIngredients[index] = itemtoBeAdded;
-                        console.log('result', index, this.recipeIngredients[index]);
+                        this.updateRecipeIngredient({originalId: existing.id, item: itemtoBeAdded});
                     }
                 }
             },
@@ -350,7 +394,7 @@ const recipeHelper = createNamespacedHelpers("recipe");
             },
 
             onSave() {
-                this.recipe.ingredients = this.recipeIngredients.map(x => {
+                this.recipe.ingredients = this.recipeIngredientList.map(x => {
                     return {
                         id: x.id,
                         quantity: x.quantity,
@@ -358,7 +402,7 @@ const recipeHelper = createNamespacedHelpers("recipe");
                         unitType: x.selectedUnitType
                     }
                 });
-                console.log('result', this.recipe, this.recipeIngredients);
+                console.log('result', this.recipe, this.recipeIngredientList);
                 this.updateRecipeAsync(this.recipe)
                     .then(result => {
                         console.log('onSave result', result);

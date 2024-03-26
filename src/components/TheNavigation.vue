@@ -1,6 +1,6 @@
 <template>
-    <template v-if="this.currentMember != null && this.currentMember.isAdmin" v-for="item in links">
-        <router-link :to="item.link" class-active="active" class="link text-darkgreen">
+    <template v-for="item in links">
+        <router-link v-if="item.isAdmin == false || (this.currentMember != null && this.currentMember.isAdmin)" :to="item.link" class-active="active" class="link text-darkgreen">
             <v-icon :icon="item.icon" :title="item.text"></v-icon>
             <p>{{ item.text }}</p>
         </router-link>
@@ -27,12 +27,20 @@ const authHelper = createNamespacedHelpers('auth');
                     {
                         icon: "mdi-food-variant",
                         text: "Ingredients",
-                        link: "/ingredients"
+                        link: "/ingredients",
+                        isAdmin: true,
                     },
                     {
                         icon: "mdi-format-list-text",
                         text: "Recipes",
-                        link: "/recipes"
+                        link: "/recipes",
+                        isAdmin: false
+                    },
+                    {
+                        icon: "mdi-fridge-variant-outline",
+                        text: "My Kitchen",
+                        link: "/kitchen",
+                        isAdmin: false
                     }
                 ]
             }

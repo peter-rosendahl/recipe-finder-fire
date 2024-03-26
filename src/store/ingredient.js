@@ -3,6 +3,7 @@ import { get, set } from 'firebase/database';
 
 const state = {
     ingredientList: [],
+    recipeIngredientList: [],
     isLoading: false,
     categoryList: [
         "Alcoholic Beverages",
@@ -64,10 +65,32 @@ const mutations = {
     },
     SET_LOADING(state, isLoading) {
         state.isLoading = isLoading;
+    },
+
+    SET_RECIPE_INGREDIENTS(state, data) {
+        state.recipeIngredientList = data;
+    },
+
+    ADD_RECIPE_INGREDIENT(state, item) {
+        state.recipeIngredientList.push(item);
+    },
+
+    UPDATE_RECIPE_INGREDIENT(state, {index, item}) {
+        console.log(`updating recipe ingredient list by index ${index}`, item)
+        state.recipeIngredientList.splice(index, 1, item);
+    },
+
+    REMOVE_RECIPE_INGREDIENT_INDEX(state, index) {
+        state.recipeIngredientList.splice(index, 1);
+    },
+
+    CLEAR_RECIPE_INGREDIENT(state) {
+        state.recipeIngredientList = [];
     }
 }
 
 const actions = {
+    
     async fetchIngredients({ commit }) {
         commit('SET_LOADING', true);
         if (state.ingredientList.length == 0) {
@@ -86,6 +109,7 @@ const actions = {
             commit('SET_LOADING', false);
         }
     },
+    
     updateIngredientAsync({commit}, data) {
         console.log('updateIngredientAsync data', data);
         if (data.id == 0) {
@@ -94,14 +118,48 @@ const actions = {
         }
         commit("SET_INGREDIENT", data);
         return set(setRef(`ingredients/${data.id}`), data);
-    }
+    },
+
+    setRecipeIngredientList({commit}, data) {
+        commit("SET_RECIPE_INGREDIENTS", data);
+    },
+
+    appendToRecipeIngredientList({commit, state}, item) {
+        commit("ADD_RECIPE_INGREDIENT", item);
+        console.log('appending to recipe ingredient list', item, state.recipeIngredientList);
+    },
+
+    updateRecipeIngredient(store, {originalId, item}) {
+        const existingItem = store.state.recipeIngredientList.find(x => x.id == originalId);
+        const index = store.state.recipeIngredientList.indexOf(existingItem);
+        console.log('updateRecipeIngredient existingItem', existingItem, item);
+        if (existingItem == null) {
+            store.dispatch("appendToRecipeIngredientList", item);
+            return;
+        }
+        store.commit(
+            "UPDATE_RECIPE_INGREDIENT", 
+            {index, item});
+    },
+
+    removeRecipeIngredient({state, commit}, item) {
+        const index = state.recipeIngredientList.indexOf(item);
+        if (index != -1) {
+            commit("REMOVE_RECIPE_INGREDIENT_INDEX", index);
+        }
+    },
+
+    clearRecipeIngredientList({commit}) {
+        commit("CLEAR_RECIPE_INGREDIENT");
+    },
 };
 
 const getters = {
     ingredients: (state) => state.ingredientList,
     isLoading: (state) => state.isLoading,
     unitTypeList: (state) => state.unitTypes,
-    ingredientCategoryList: (state) => state.categoryList
+    ingredientCategoryList: (state) => state.categoryList,
+    recipeIngredientList: (state) => state.recipeIngredientList,
 };
 
 export default {

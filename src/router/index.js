@@ -2,6 +2,7 @@ import * as VueRouter from 'vue-router';
 import IngredientListView from './../pages/IngredientListView.vue';
 import RecipeListView from './../pages/RecipeListView.vue';
 import RecipeDetailView from './../pages/RecipeDetailView.vue';
+import KitchenView from '../pages/KitchenView.vue';
 
 const routes = [
     {
@@ -19,6 +20,10 @@ const routes = [
     {
         path: "/recipes/:id",
         component: RecipeDetailView
+    },
+    {
+        path: "/kitchen",
+        component: KitchenView
     }
 ]
 
