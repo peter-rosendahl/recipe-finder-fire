@@ -1,8 +1,8 @@
 <template>
     <v-row class="labels">
-        <v-col class="label"><p @click="requestPageChange(1)" :class="{'active': currentPage == 1, 'clickable': currentPage != 1}">{{ currentPage == 1 ? '- ' : ''}}Basic info{{ currentPage == 1 ? ' -' : ''}}</p></v-col>
-        <v-col class="label"><p @click="requestPageChange(2)" :class="{'active': currentPage == 2, 'clickable': currentPage != 2}">{{ currentPage == 2 ? '- ' : ''}}Ingredients{{ currentPage == 2 ? ' -' : ''}}</p></v-col>
-        <v-col class="label"><p @click="requestPageChange(3)" :class="{'active': currentPage == 3, 'clickable': currentPage != 3}">{{ currentPage == 3 ? '- ' : ''}}Preparation{{ currentPage == 3 ? ' -' : ''}}</p></v-col>
+        <v-col class="label"><p @click="requestPageChange(1)" :class="{'active': currentPage == 1, 'clickable': currentPage != 1}">{{ currentPage == 1 ? '-' : ''}}Basic info{{ currentPage == 1 ? '-' : ''}}</p></v-col>
+        <v-col class="label"><p @click="requestPageChange(2)" :class="{'active': currentPage == 2, 'clickable': currentPage != 2}">{{ currentPage == 2 ? '-' : ''}}Ingredients{{ currentPage == 2 ? '-' : ''}}</p></v-col>
+        <v-col class="label"><p @click="requestPageChange(3)" :class="{'active': currentPage == 3, 'clickable': currentPage != 3}">{{ currentPage == 3 ? '-' : ''}}Preparation{{ currentPage == 3 ? '-' : ''}}</p></v-col>
     </v-row>
     <v-row class="markers">
         <v-col class="marker"><v-progress-linear :color="basicColor" v-model="progress.basic"></v-progress-linear></v-col>

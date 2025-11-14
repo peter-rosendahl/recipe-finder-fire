@@ -99,7 +99,8 @@
                         <h3 class="page-title">Ingredients</h3>
                     </v-col>
                 </v-row>
-                <template v-for="item in recipe.recipeIngredients" :key="item.listId">
+                <ingredient-list source="recipe" />
+                <!-- <template v-for="item in recipe.recipeIngredients" :key="item.listId">
                     <div class="flex row wrap align_center mb_20">
                         <v-text-field
                             class="flex-item o1 mobile_o2"
@@ -149,7 +150,7 @@
                             Add ingredient
                         </v-btn>
                     </v-col>
-                </v-row>
+                </v-row> -->
             </template>
             <template v-if="currentPage == 3">
                 <v-row>
@@ -179,11 +180,12 @@
                     </v-col>
                 </v-row>
             </template>
-            <v-row class="justify-between">
-                <v-col>
+            <v-divider style="margin: 32px 0 16px;" />
+            <v-row justify="space-between" class="justify-between">
+                <v-col cols="auto" sm="auto">
                     <v-btn flat :disabled="currentPage == 1" @click="goToPrevious">Back</v-btn>
                 </v-col>
-                <v-col cols="12" sm="2" style="display: flex; justify-content: end;">
+                <v-col cols="auto" sm="auto" style="display: flex; justify-content: end;">
                     <v-btn v-if="currentPage == 3" :disabled="recipe.preparation.length == 0" color="primary" @click="onSave">Save</v-btn>
                     <v-btn v-else color="babyblue" @click="goToNext">Next</v-btn>
                 </v-col>
@@ -196,12 +198,14 @@
 import { createNamespacedHelpers } from 'vuex';
 import FormProgress from './recipe/FormProgress.vue';
 import recipe from '../store/recipe';
+import IngredientList from './ingredient/IngredientList.vue';
 const ingredientHelper = createNamespacedHelpers("ingredient");
 const recipeHelper = createNamespacedHelpers("recipe");
 
     export default {
         components: {
-            'form-progress': FormProgress
+            'form-progress': FormProgress,
+            'ingredient-list': IngredientList
         },
         data() {
             return {

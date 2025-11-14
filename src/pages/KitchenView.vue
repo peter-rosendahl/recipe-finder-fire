@@ -1,25 +1,35 @@
 <template>
     <v-row>
-            <v-col cols="12" sm="6">
-                <h1 class="text-babyblue">My kitchen</h1>
-            </v-col>
+        <v-col cols="12" sm="6">
+            <h1 class="text-babyblue">My kitchen</h1>
+        </v-col>
     </v-row>
     <v-row>
         <v-col>
+            <ingredient-list source="kitchen" />
+        </v-col>
+    </v-row>
+    <v-row>
+        <v-col>
+            <v-btn @click="() => saveKitchenList({uid: this.currentMember.id, data: this.kitchenList})">Save</v-btn>
         </v-col>
     </v-row>
 </template>
 
 <script>
 import { createNamespacedHelpers } from 'vuex';
-const kitchenHelper = createNamespacedHelpers("kitchen");
-const recipeHelper = createNamespacedHelpers("recipe");
+import IngredientList from '../components/ingredient/IngredientList.vue';
+const kitchenHelper = createNamespacedHelpers("kitchenlist");
+const authHelper = createNamespacedHelpers("auth");
 
     export default {
         name: "My kitchen",
 
-        created() {
+        components: {
+            'ingredient-list': IngredientList
+        },
 
+        created() {
         },
 
         mounted() {
@@ -31,8 +41,20 @@ const recipeHelper = createNamespacedHelpers("recipe");
             }
         },
 
+        watch: {
+            currentMember: {
+                handler(value, oldValue) {
+                    console.log('current member', value, oldValue);
+                    if (this.kitchenList.length == 0 && this.currentMember != null) {
+                        this.fetchKitchenListByAuthorId(this.currentMember.id);
+                    }
+                }
+            }
+        },
+
         computed: {
             ...kitchenHelper.mapGetters(["kitchenList"]),
+            ...authHelper.mapGetters(["currentMember"]),
             headers() {
                 return [
                     { title: "Name", align: "start", key: "customName" },
@@ -41,8 +63,13 @@ const recipeHelper = createNamespacedHelpers("recipe");
         },
 
         methods: {
-            ...kitchenHelper.mapActions(["addToKitchenList", "removeFromKitchenList", "clearList"]),
-            // ...recipeHelper.mapActions([""])
+            ...kitchenHelper.mapActions([
+                "addToKitchenList", 
+                "removeFromKitchenList", 
+                "clearList", 
+                "fetchKitchenListByAuthorId", 
+                "saveKitchenList"
+            ]),
         }
     }
 </script>

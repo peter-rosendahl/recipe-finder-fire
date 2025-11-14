@@ -78,6 +78,13 @@ export const logout = async() => {
     return await signOut(auth);
 }
 
+export const getKitchenById = async(uid) => {
+    const snapshot = await get(ref(db, `kitchen/${uid}`));
+    if (snapshot != null) {
+        return snapshot.val();
+    }
+}
+
 /**
  * Recipe List from database
  */
@@ -92,6 +99,11 @@ export const memberRef = ref(db, 'members');
  * Ingredient List from database
  */
 export const ingredientRef = ref(db, 'ingredients');
+
+/**
+ * Kitchen List from database
+ */
+export const kitchenRef = ref(db, 'kitchen');
 
 export const setRef = (path) => {
     return ref(db, path);

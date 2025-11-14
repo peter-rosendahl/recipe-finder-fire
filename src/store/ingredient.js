@@ -5,6 +5,15 @@ const state = {
     ingredientList: [],
     recipeIngredientList: [],
     isLoading: false,
+    defaultItem: {
+        id: 0,
+        unitType: ['g'],
+        name: {
+            da: 'Vælg ingrediens',
+            en: 'Select ingredient',
+            is: 'Velja hráefni'
+        }
+    },
     categoryList: [
         "Alcoholic Beverages",
         "Baking supplements",
@@ -53,7 +62,7 @@ const state = {
 
 const mutations = {
     SET_INGREDIENTS(state, list) {
-        state.ingredientList = list;
+        state.ingredientList = [state.defaultItem, ...list];
     },
     SET_INGREDIENT(state, item) {
         console.log('SET_INGREDIENT', Object.keys(state.ingredientList), Object.keys(item), Object.values(item));
