@@ -5,7 +5,7 @@ import "@mdi/font/css/materialdesignicons.css";
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import { VIcon } from 'vuetify/components';
-import { VDataTable } from 'vuetify/labs/VDataTable';
+import { VDataTable } from 'vuetify/components';
 import { VFooter } from 'vuetify/components';
 import colors from 'vuetify/lib/util/colors.mjs';
 

@@ -4,34 +4,61 @@
             v-if="this.shoppingList != undefined && this.shoppingList?.length != 0"
             color="error"
             :content="this.shoppingList?.length ?? 0">
-            <v-icon size="x-large" @click="dialog.isVisible = true">
+            <v-icon size="x-large" @click="() => { this.dialog.isVisible = !this.dialog.isVisible }">
                 mdi-cart
             </v-icon>
         </v-badge>
-        <v-dialog  persistent fullscreen v-model="dialog.isVisible" max-width="100%" >
+        <v-dialog  persistent fullscreen v-model="this.dialog.isVisible" max-width="100%" >
             <v-card>
                 <v-toolbar>
                     <v-toolbar-title class="text-h6">
                         Shopping list
                     </v-toolbar-title>
                     <template v-slot:append>
+                        <v-btn icon="mdi-delete-outline" @click="clearList"></v-btn>
                         <v-btn icon="mdi-close" @click="dialog.isVisible = false"></v-btn>
                     </template>
                 </v-toolbar>
                 <v-card-text>
                     <v-data-table
-                        :items="this.shoppingList"
-                        :headers="headers">
-                        <template v-slot:item="{item}">
-                            <tr :class="item.raw.isFetched ? 'fetched' : ''">
-                                <td><v-icon color="red" @click="(e) => this.removeFromShoppingList(item.raw)">mdi-close</v-icon></td>
-                                <td>{{ item.raw.name }}</td>
-                                <td>{{ item.raw.category }}</td>
-                                <td><p v-for="(itm, index) in item.raw.quantities">{{(index > 0 ? '+' : '')}} {{ itm.amount }} {{ itm.unitType }}</p></td>
-                                <td><v-icon :disabled="item.raw.isFetched" :color="item.raw.isFetched ? 'gray' : 'green'" @click="(e) => this.markItemAsFetched(item.raw)">mdi-check</v-icon></td>
-                            </tr>
+                        :items="shoppingList"
+                        :headers="headers"
+                        :row-props="rowProps"
+                        >
+                        <template #item.remove="{ item }">
+                            <v-icon color="red" @click="removeFromShoppingList(item)">
+                            mdi-close
+                            </v-icon>
                         </template>
-                    </v-data-table>
+
+                        <template #item.name="{ item }">
+                            {{ item.name }}
+                        </template>
+
+                        <template #item.category="{ item }">
+                            {{ item.category }}
+                        </template>
+
+                        <template #item.quantities="{ item }">
+                            <p v-for="(itm, index) in item.quantities" :key="index">
+                            {{ index > 0 ? '+' : '' }} {{ itm.amount }} {{ itm.unitType }}
+                            </p>
+                        </template>
+
+                        <template #item.fetched="{ item }">
+                            <v-icon
+                            :color="item.isFetched ? 'black' : 'green'"
+                            @click="toggleItemAsFetched(item)"
+                            >
+                            <template v-if="item.isFetched">
+                                 mdi-arrow-u-left-top
+                            </template>
+                            <template v-else>
+                                mdi-check
+                            </template>
+                            </v-icon>
+                        </template>
+                        </v-data-table>
                 </v-card-text>
             </v-card>
         </v-dialog>
@@ -53,15 +80,22 @@ export default {
                 { title: "Name", align: "start", key: "name" },
                 { title: "Category", align: "start", key: "category" },
                 { title: "Amount", align: "end", key: "quantities" },
-                { title: "Got it", align: "end", key: "complete" }
+                { title: "Got it", align: "end", key: "fetched" }
             ]
+        }
+    },
+
+    watch: {
+        shoppingList: {
+            deep: true,
+            handler(value, oldValue) {
+                console.log('watch.shoppingList: updated', value, oldValue);
+            }
         }
     },
     computed: {
         ...shoppingListHelper.mapGetters(["shoppingList"]),
-        renderRowClasses(data) {
-            return data?.item?.isFetched ? "fetched" : "unfetched";
-        }
+        
     },
     methods: {
         ...shoppingListHelper.mapActions(["removeFromShoppingList", "clearShoppingList","markAsFetched"]),
@@ -75,9 +109,13 @@ export default {
             }
         },
 
-        markItemAsFetched(item) {
-            console.log("markItemAsFetched", item);
+        toggleItemAsFetched(item) {
+            console.log("toggleItemAsFetched", item);
             this.markAsFetched(item);
+        },
+
+        clearList() {
+            this.clearShoppingList();
         }
     }
 }
@@ -89,7 +127,11 @@ export default {
         padding-right: 25px;
     }
 
-    .fetched td {
+    .v-toolbar {
+        background-color: #d1e7ee;
+    }
+
+    :deep(.fetched) {
         background: rgba(189, 255, 189, 0.9) !important;
     }
 </style>

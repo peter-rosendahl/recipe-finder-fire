@@ -17,6 +17,8 @@ const state = {
         'side dish',
         'snacks',
         'soups and stews',
+        'sous vide',
+        'low budget'
     ],
     cultureList: [
         'american',

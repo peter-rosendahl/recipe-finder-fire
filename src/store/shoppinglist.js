@@ -137,7 +137,8 @@ const actions = {
         const existingItem = state.list.find(x => x.id == item.id);
         if (existingItem == null) return;
 
-        existingItem.isFetched = true;
+        existingItem.isFetched = !item.isFetched;
+        console.log("found item", existingItem);
         commit("UPDATE", existingItem);
     },
 

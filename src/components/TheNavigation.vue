@@ -75,7 +75,7 @@ const authHelper = createNamespacedHelpers('auth');
     @media screen and (max-width: 900px) {
         .link {
             p {
-                display: none;
+                //display: none;
             }
         }
     }

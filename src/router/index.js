@@ -7,23 +7,28 @@ import KitchenView from '../pages/KitchenView.vue';
 const routes = [
     {
         path: "/",
-        component: RecipeListView
+        component: RecipeListView,
+        name: "Recipes"
     },
     {
         path: "/ingredients",
-        component: IngredientListView
+        component: IngredientListView,
+        name: "Ingredients"
     },
     {
         path: "/recipes",
-        component: RecipeListView
+        component: RecipeListView,
+        name: "Recipes"
     },
     {
         path: "/recipes/:id",
-        component: RecipeDetailView
+        component: RecipeDetailView,
+        name: "Recipe"
     },
     {
         path: "/kitchen",
-        component: KitchenView
+        component: KitchenView,
+        name: "Kitchen"
     }
 ]
 

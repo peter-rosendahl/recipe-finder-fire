@@ -34,6 +34,7 @@
                 hide-details
                 single-line
                 dense
+                size="sm"
                 label="Name"
             ></v-autocomplete>
             <v-btn 

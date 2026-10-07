@@ -42,6 +42,7 @@
                             ref="category"
                             variant="solo"
                             density="compact"
+                            multiple
                             label="Category"
                             @update:modelValue="onFieldChange('basic')"
                             ></v-select>                         

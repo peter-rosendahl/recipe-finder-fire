@@ -23,7 +23,7 @@
                 <p>{{ recipe.personCount }} person(s)</p>
             </div>
             <div class="flex horizontal ph_20 align_center">
-                <p>{{ recipe.culture }} {{ recipe.category }}</p>
+                <p>{{ recipe.culture }} {{ typeof(recipe.category) == 'object' ? recipe.category.join(', ') : recipe.category }}</p>
             </div>
         </v-col>
     </v-row>
@@ -120,6 +120,8 @@ import RecipeNutritionCard from '../components/RecipeNutritionCard.vue';
 import RecipeForm from '../components/RecipeForm.vue';
 import { createNamespacedHelpers } from 'vuex';
 import Swipe from '../components/Swipe.vue';
+import recipe from '../store/recipe';
+import { join } from 'firebase/firestore/pipelines';
 const ingredientHelper = createNamespacedHelpers("ingredient");
 const recipeHelper = createNamespacedHelpers("recipe");
 const authHelper = createNamespacedHelpers("auth");
